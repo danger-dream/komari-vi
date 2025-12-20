@@ -1,0 +1,79 @@
+name: Release Komari Theme
+
+on:
+  push:
+    tags:
+      - "theme-v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: komari-theme-purcarte/package-lock.json
+
+      - name: Install Yarn
+        run: npm install -g yarn
+
+      - name: Install dependencies
+        working-directory: komari-theme-purcarte
+        run: yarn
+
+      - name: Build project
+        working-directory: komari-theme-purcarte
+        run: yarn build
+
+      - name: Update theme configuration
+        working-directory: komari-theme-purcarte
+        run: |
+          VERSION="${GITHUB_REF_NAME#theme-}"
+          VERSION="${VERSION#v}"
+          if ! echo "$VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "Error: Version '$VERSION' is not a valid semantic version (X.Y.Z format)"
+            exit 1
+          fi
+
+          jq --arg version "$VERSION" \
+              '.version = $version' \
+              komari-theme.json > komari-theme-updated.json
+
+          mv komari-theme-updated.json komari-theme.json
+
+      - name: Verify required files exist
+        working-directory: komari-theme-purcarte
+        run: |
+          ls -la preview.png
+          ls -la komari-theme.json
+          ls -la dist/
+
+      - name: Create theme package
+        working-directory: komari-theme-purcarte
+        run: |
+          rm -rf theme-package
+          mkdir -p theme-package
+          cp preview.png theme-package/
+          cp komari-theme.json theme-package/
+          cp -r dist/ theme-package/
+          ZIP_NAME="komari-theme-purcarte.zip"
+          cd theme-package
+          zip -r "../${ZIP_NAME}" .
+
+      - name: Upload zip to release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+          generate_release_notes: true
+          files: komari-theme-purcarte/komari-theme-purcarte.zip

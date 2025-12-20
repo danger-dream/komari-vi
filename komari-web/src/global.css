@@ -1,0 +1,245 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+	--color-accent-1: var(--accent-1);
+	--color-accent-2: var(--accent-2);
+	--color-accent-3: var(--accent-3);
+	--color-accent-4: var(--accent-4);
+	--color-accent-5: var(--accent-5);
+	--color-accent-6: var(--accent-6);
+	--color-accent-7: var(--accent-7);
+	--color-accent-8: var(--accent-8);
+	--color-accent-9: var(--accent-9);
+	--color-accent-10: var(--accent-10);
+	--color-accent-11: var(--accent-11);
+	--color-accent-12: var(--accent-12);
+	--color-accent-a1: var(--accent-a1);
+	--color-accent-a2: var(--accent-a2);
+	--color-accent-a3: var(--accent-a3);
+	--color-accent-a4: var(--accent-a4);
+	--color-accent-a5: var(--accent-a5);
+	--color-accent-a6: var(--accent-a6);
+	--color-accent-a7: var(--accent-a7);
+	--color-accent-a8: var(--accent-a8);
+	--color-accent-a9: var(--accent-a9);
+	--color-accent-a10: var(--accent-a10);
+	--color-accent-a11: var(--accent-a11);
+	--color-accent-a12: var(--accent-a12);
+	--color-sidebar-ring: var(--sidebar-ring);
+	--color-sidebar-border: var(--sidebar-border);
+	--color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+	--color-sidebar-accent: var(--sidebar-accent);
+	--color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+	--color-sidebar-primary: var(--sidebar-primary);
+	--color-sidebar-foreground: var(--sidebar-foreground);
+	--color-sidebar: var(--sidebar);
+	--color-chart-5: var(--chart-5);
+	--color-chart-4: var(--chart-4);
+	--color-chart-3: var(--chart-3);
+	--color-chart-2: var(--chart-2);
+	--color-chart-1: var(--chart-1);
+	--color-ring: var(--ring);
+	--color-input: var(--input);
+	--color-border: var(--border);
+	--color-destructive: var(--destructive);
+	--color-accent-foreground: var(--accent-foreground);
+	--color-accent: var(--accent);
+	--color-muted-foreground: var(--muted-foreground);
+	--color-muted: var(--muted);
+	--color-secondary-foreground: var(--secondary-foreground);
+	--color-secondary: var(--secondary);
+	--color-primary-foreground: var(--primary-foreground);
+	--color-primary: var(--primary);
+	--color-popover-foreground: var(--popover-foreground);
+	--color-popover: var(--popover);
+	--color-card-foreground: var(--card-foreground);
+	--color-card: var(--card);
+	--color-foreground: var(--foreground);
+	--color-background: var(--background);
+	--radius-sm: calc(var(--radius) - 4px);
+	--radius-md: calc(var(--radius) - 2px);
+	--radius-lg: var(--radius);
+	--radius-xl: calc(var(--radius) + 4px);
+}
+
+:root {
+	--radius: 0.625rem;
+	--background: oklch(1 0 0);
+	--foreground: oklch(0.145 0 0);
+	--card: oklch(1 0 0);
+	--card-foreground: oklch(0.145 0 0);
+	--popover: oklch(1 0 0);
+	--popover-foreground: oklch(0.145 0 0);
+	--primary: oklch(0.205 0 0);
+	--primary-foreground: oklch(0.985 0 0);
+	--secondary: oklch(0.97 0 0);
+	--secondary-foreground: oklch(0.205 0 0);
+	--muted: oklch(0.97 0 0);
+	--muted-foreground: oklch(0.556 0 0);
+	--accent: oklch(0.97 0 0);
+	--accent-foreground: oklch(0.205 0 0);
+	--destructive: oklch(0.577 0.245 27.325);
+	--border: oklch(0.922 0 0);
+	--input: oklch(0.922 0 0);
+	--ring: oklch(0.708 0 0);
+	--chart-1: oklch(0.646 0.222 41.116);
+	--chart-2: oklch(0.6 0.118 184.704);
+	--chart-3: oklch(0.398 0.07 227.392);
+	--chart-4: oklch(0.828 0.189 84.429);
+	--chart-5: oklch(0.769 0.188 70.08);
+	--sidebar: oklch(0.985 0 0);
+	--sidebar-foreground: oklch(0.145 0 0);
+	--sidebar-primary: oklch(0.205 0 0);
+	--sidebar-primary-foreground: oklch(0.985 0 0);
+	--sidebar-accent: oklch(0.97 0 0);
+	--sidebar-accent-foreground: oklch(0.205 0 0);
+	--sidebar-border: oklch(0.922 0 0);
+	--sidebar-ring: oklch(0.708 0 0);
+}
+
+.dark {
+	--background: oklch(0.145 0 0);
+	--foreground: oklch(0.985 0 0);
+	--card: oklch(0.205 0 0);
+	--card-foreground: oklch(0.985 0 0);
+	--popover: oklch(0.205 0 0);
+	--popover-foreground: oklch(0.985 0 0);
+	--primary: oklch(0.922 0 0);
+	--primary-foreground: oklch(0.205 0 0);
+	--secondary: oklch(0.269 0 0);
+	--secondary-foreground: oklch(0.985 0 0);
+	--muted: oklch(0.269 0 0);
+	--muted-foreground: oklch(0.708 0 0);
+	--accent: oklch(0.269 0 0);
+	--accent-foreground: oklch(0.985 0 0);
+	--destructive: oklch(0.704 0.191 22.216);
+	--border: oklch(1 0 0 / 10%);
+	--input: oklch(1 0 0 / 15%);
+	--ring: oklch(0.556 0 0);
+	--chart-1: oklch(0.488 0.243 264.376);
+	--chart-2: oklch(0.696 0.17 162.48);
+	--chart-3: oklch(0.769 0.188 70.08);
+	--chart-4: oklch(0.627 0.265 303.9);
+	--chart-5: oklch(0.645 0.246 16.439);
+	--sidebar: oklch(0.205 0 0);
+	--sidebar-foreground: oklch(0.985 0 0);
+	--sidebar-primary: oklch(0.488 0.243 264.376);
+	--sidebar-primary-foreground: oklch(0.985 0 0);
+	--sidebar-accent: oklch(0.269 0 0);
+	--sidebar-accent-foreground: oklch(0.985 0 0);
+	--sidebar-border: oklch(1 0 0 / 10%);
+	--sidebar-ring: oklch(0.556 0 0);
+}
+
+@layer base {
+	* {
+		@apply border-border outline-ring/50;
+	}
+	body {
+		@apply bg-background text-foreground;
+	}
+}
+
+::-webkit-scrollbar {
+	width: 8px;
+	background: transparent;
+}
+::-webkit-scrollbar-thumb {
+	background: rgba(80, 80, 80, 0.4);
+	border-radius: 4px;
+	border: 2px solid transparent;
+	background-clip: padding-box;
+}
+
+::-webkit-scrollbar-button {
+	display: none;
+}
+
+::-webkit-scrollbar-corner {
+	background: transparent;
+}
+
+body,
+* {
+	scrollbar-width: thin;
+	scrollbar-color: rgba(80, 80, 80, 0.4) transparent;
+}
+/* VSCode Theming Variables */
+:root {
+	--vscode-bg: 255 255 255;
+	--vscode-bg-light: 242 242 242;
+	--vscode-bg-dark: 255 255 255;
+	--vscode-border: 221 221 221;
+	--vscode-focus-border: 0 127 212; /* Debug: Blue */
+	--vscode-foreground: 0 0 0;
+	--vscode-description-foreground: 100 100 100;
+	--vscode-error-foreground: 161 22 22;
+
+	--vscode-editor-background: 255 255 255;
+	--vscode-editor-foreground: 0 0 0;
+	--vscode-editor-selection-background: 173 214 255;
+
+	--vscode-tabs-background: 242 242 242;
+	--vscode-tab-active-background: 255 255 255;
+	--vscode-tab-active-foreground: 0 0 0;
+	--vscode-tab-inactive-background: 231 231 231;
+	--vscode-tab-inactive-foreground: 128 128 128;
+	--vscode-tab-dirty-indicator: 0 127 212;
+
+	--vscode-panel-background: 242 242 242;
+	--vscode-panel-border: 221 221 221;
+	--vscode-panel-tab-active-border: 0 127 212;
+	--vscode-panel-tab-active-foreground: 0 0 0;
+	--vscode-panel-tab-inactive-foreground: 128 128 128;
+
+	--vscode-button-background: 0 127 212;
+	--vscode-button-foreground: 255 255 255;
+	--vscode-button-hover-background: 16 137 222; /* Debug: Brighter Blue */
+	--vscode-button-active-background: 0 99 170;
+
+	--vscode-input-background: 255 255 255;
+	--vscode-input-foreground: 0 0 0;
+	--vscode-input-border: 204 204 204;
+	--vscode-input-placeholder-foreground: 128 128 128;
+}
+
+.dark {
+	--vscode-bg: 30 30 30;
+	--vscode-bg-light: 37 37 38;
+	--vscode-bg-dark: 24 24 24;
+	--vscode-border: 51 51 51;
+	--vscode-focus-border: 255 0 255; /* Debug: Fuchsia */
+	--vscode-foreground: 204 204 204;
+	--vscode-description-foreground: 138 138 138;
+	--vscode-error-foreground: 244 135 113;
+
+	--vscode-editor-background: 30 30 30;
+	--vscode-editor-foreground: 204 204 204;
+	--vscode-editor-selection-background: 58 67 75;
+
+	--vscode-tabs-background: 37 37 38;
+	--vscode-tab-active-background: 30 30 30;
+	--vscode-tab-active-foreground: 255 255 255;
+	--vscode-tab-inactive-background: 45 45 45;
+	--vscode-tab-inactive-foreground: 153 153 153;
+	--vscode-tab-dirty-indicator: 228 228 228;
+
+	--vscode-panel-background: 30 30 30;
+	--vscode-panel-border: 51 51 51;
+	--vscode-panel-tab-active-border: 231 231 231;
+	--vscode-panel-tab-active-foreground: 231 231 231;
+	--vscode-panel-tab-inactive-foreground: 204 204 204;
+	
+	--vscode-button-background: 14 99 156;
+	--vscode-button-foreground: 255 255 255;
+	--vscode-button-hover-background: 50 255 50; /* Debug: Lime Green */
+	--vscode-button-active-background: 10 73 115;
+
+	--vscode-input-background: 60 60 60;
+	--vscode-input-foreground: 204 204 204;
+	--vscode-input-border: 60 60 60;
+	--vscode-input-placeholder-foreground: 138 138 138;
+}

@@ -1,0 +1,272 @@
+{
+    "name": "Komari Theme PurCart",
+    "short": "PurCarte",
+    "description": "A frosted glass theme for Komari",
+    "version": "tags:VERSION",
+    "author": "Montia & Gemini",
+    "url": "https://github.com/Montia37/Komari-theme-purcarte",
+    "preview": "preview.png",
+    "configuration": {
+        "type": "managed",
+        "data": [
+			{
+				"name": "样式调整",
+				"type": "title"
+			},
+			{
+				"key": "backgroundImage",
+				"name": "背景图片链接",
+				"type": "string",
+				"default": "/assets/Moonlit-Scenery.webp",
+				"help": "目前仅支持单张背景图片（eg: https://test.com/1.png）"
+			},
+			{
+				"key": "enableVideoBackground",
+				"name": "启用视频背景",
+				"type": "switch",
+				"default": false,
+				"help": "启用后将使用视频作为背景"
+			},
+			{
+				"key": "videoBackgroundUrl",
+				"name": "视频背景链接",
+				"type": "string",
+				"default": "/assets/LanternRivers_1080p15fps2Mbps3s.mp4",
+				"help": "视频背景链接（eg: https://test.com/1.mp4），建议使用无声视频，且视频文件较大时可能会影响加载速度"
+			},
+			{
+				"key": "enableBlur",
+				"name": "启用磨砂玻璃效果",
+				"type": "switch",
+				"default": true,
+				"help": "启用后将使主要容器拥有磨砂玻璃效果"
+			},
+			{
+				"key": "blurValue",
+				"name": "磨砂玻璃模糊值",
+				"type": "number",
+				"default": 10,
+				"help": "调整模糊值大小，数值越大模糊效果越明显，建议值为 5-20，为 0 则表示不启用模糊效果"
+			},
+			{
+				"key": "blurBackgroundColor",
+				"name": "磨砂玻璃背景色",
+				"type": "string",
+				"default": "rgba(255, 255, 255, 0.5)|rgba(0, 0, 0, 0.5)",
+				"help": "调整模糊背景色，推荐 rgba 颜色值，使用“|”分隔亮色模式和暗色模式的颜色值（eg: rgba(255, 255, 255, 0.5)|rgba(0, 0, 0, 0.5)）"
+			},
+			{
+				"key": "enableTransparentTags",
+				"name": "启用标签透明背景",
+				"type": "switch",
+				"default": true,
+				"help": "启用后标签将使用较为透明的背景色，当背景情况复杂导致标签难以辨识时建议关闭"
+			},
+			{
+				"key": "tagDefaultColorList",
+				"name": "标签默认颜色列表",
+				"type": "string",
+				"default": "ruby,gray,gold,bronze,brown,yellow,amber,orange,tomato,red",
+				"help": "标签默认颜色列表，展示的标签将按顺序调用该颜色池，逗号分隔（可用的颜色列表请参考：https://www.radix-ui.com/themes/docs/theme/color，改完没有生效则说明填写有误）"
+			},
+			{
+				"key": "selectThemeColor",
+				"name": "默认主题颜色",
+				"type": "select",
+				"options": "gray,gold,bronze,brown,yellow,amber,orange,tomato,red,ruby,crimson,pink,plum,purple,violet,iris,indigo,blue,cyan,teal,jade,green,grass,lime,mint,sky",
+				"default": "gray",
+				"help": "设置默认主题颜色，颜色对照请参考：https://www.radix-ui.com/themes/docs/theme/color"
+			},
+			{
+				"key": "enableLocalStorage",
+				"name": "启用 localStorage 配置",
+				"type": "switch",
+				"default": true,
+				"help": "启用后将优先使用用户浏览器本地配置的视图和外观设置。关闭后将强制使用下方的主题配置，本地可调整但刷新即恢复"
+			},
+			{
+				"key": "selectedDefaultView",
+				"name": "默认展示视图",
+				"type": "select",
+				"options": "grid,table",
+				"default": "grid",
+				"help": "设置默认展示视图为网格或表格"
+			},
+			{
+				"key": "selectedDefaultAppearance",
+				"name": "默认外观",
+				"type": "select",
+				"options": "system,light,dark",
+				"default": "system",
+				"help": "设置默认外观为浅色、深色或系统主题"
+			},
+			{
+				"key": "statusCardsVisibility",
+				"name": "状态卡片显示控制",
+				"type": "string",
+				"default": "currentTime:true,currentOnline:true,regionOverview:true,trafficOverview:true,networkSpeed:true",
+				"help": "控制状态卡片的显示与隐藏，格式为 卡片名称:显示状态（true/false），多个卡片使用逗号分隔，支持的卡片名称包括 currentTime（当前时间）, currentOnline（当前在线）, regionOverview（点亮地区）, trafficOverview（流量概览）, networkSpeed（网络速率）"
+			},
+			{
+				"name": "标题栏设置",
+				"type": "title"
+			},
+			{
+				"key": "enableLogo",
+				"name": "启用标题栏左侧 Logo",
+				"type": "switch",
+				"default": false,
+				"help": "启用后默认在标题栏左侧显示 Logo"
+			},
+			{
+				"key": "logoUrl",
+				"name": "Logo 图片链接",
+				"type": "string",
+				"required": false,
+				"default": "/assets/logo.png",
+				"help": "Logo 图片链接（eg: https://test.com/logo.png）"
+			},
+			{
+				"key": "enableTitle",
+				"name": "启用标题栏标题",
+				"type": "switch",
+				"default": true,
+				"help": "启用后默认在顶栏左侧显示标题"
+			},
+			{
+				"key": "titleText",
+				"name": "标题栏标题文本",
+				"type": "string",
+				"default": "",
+				"help": "标题栏左侧显示的文本（留空则使用站点标题）"
+			},
+			{
+				"key": "enableSearchButton",
+				"name": "启用搜索按钮",
+				"type": "switch",
+				"default": true,
+				"help": "启用后默认在标题栏右侧显示搜索按钮"
+			},
+			{
+				"key": "enableAdminButton",
+				"name": "启用管理按钮",
+				"type": "switch",
+				"default": true,
+				"help": "启用后默认在标题栏右侧显示管理按钮"
+			},
+			{
+				"name": "内容设置",
+				"type": "title"
+			},
+			{
+				"key": "enableStatsBar",
+				"name": "启用统计栏",
+				"type": "switch",
+				"default": true,
+				"help": "启用后默认显示统计栏"
+			},
+			{
+				"key": "enableGroupedBar",
+				"name": "启用分组栏",
+				"type": "switch",
+				"default": true,
+				"help": "启用后默认显示分组栏"
+			},
+			{
+				"key": "enableSwap",
+				"name": "启用 SWAP 显示",
+				"type": "switch",
+				"default": true,
+				"help": "启用后默认显示 SWAP 信息"
+			},
+			{
+				"key": "selectTrafficProgressStyle",
+				"name": "流量进度条样式",
+				"type": "select",
+				"options": "circular,linear",
+				"default": "circular",
+				"help": "设置流量进度条样式为 circular（环形）或 linear（线形）"
+			},
+			{
+				"key": "enableListItemProgressBar",
+				"name": "启用列表视图进度条",
+				"type": "switch",
+				"default": true,
+				"help": "启用后列表视图中将会显示进度条来表示使用率"
+			},
+			{
+				"name": "Instance 设置",
+				"type": "title"
+			},
+			{
+				"key": "enableInstanceDetail",
+				"name": "启用 Instance 详情信息",
+				"type": "switch",
+				"default": true,
+				"help": "启用后默认显示 Instance 详情"
+			},
+			{
+				"key": "enablePingChart",
+				"name": "启用延迟图表",
+				"type": "switch",
+				"default": true,
+				"help": "启用后默认显示延迟图表"
+			},
+			{
+				"key": "enableConnectBreaks",
+				"name": "启用连接断点",
+				"type": "switch",
+				"default": false,
+				"help": "启用后图表中的曲线将会跨过断点形成连续的线条，并使用半透明的垂直参考线来标记断点位置"
+			},
+			{
+				"key": "pingChartMaxPoints",
+				"name": "延迟图表最大渲染点数",
+				"type": "number",
+				"default": 0,
+				"help": "设置延迟图表的最大渲染点数来优化图表渲染，0 表示不限制，推荐值为 2000 或更小的值"
+			},
+			{
+				"name": "金额扩展设置",
+				"type": "title"
+			},
+			{
+				"key": "defaultCurrency",
+				"name": "默认显示货币类型",
+				"type": "select",
+				"options": "人民币,美元,欧元,英镑,日元,香港元,澳门元,新台币,新加坡元,韩元,印度卢比,巴西雷亚尔,墨西哥比索,加拿大元,澳大利亚元,新西兰元,瑞士法郎,瑞典克朗,挪威克朗,丹麦克朗,波兰兹罗提,俄罗斯卢布,土耳其里拉,南非兰特,阿根廷比索,智利比索,哥伦比亚比索,秘鲁索尔,越南盾,泰国铢,马来西亚林吉特,菲律宾比索",
+				"default": "人民币",
+				"help": "设置默认显示货币类型，统一货币符号以保持一致性"
+			},
+			{
+				"key": "enableCurrencySymbol",
+				"name": "是否显示货币符号",
+				"type": "switch",
+				"default": true,
+				"help": "设置是否显示货币符号，勾选时显示：￥368.88，不勾选时显示：368.88"
+			},
+			{
+				"key": "currencyApi",
+				"name": "汇率接口",
+				"type": "select",
+				"options": "currency,exchangerate",
+				"default": "currency",
+				"help": "设置汇率接口，currency 为 https://latest.currency-api.pages.dev/v1/currencies/usd.json、exchangerate 为 https://api.exchangerate-api.com/v4/latest/USD"
+			},
+			{
+				"key": "enableRemainingValueCalculation",
+				"name": "启用剩余价值计算",
+				"type": "switch",
+				"default": true,
+				"help": "启用后会增加剩余价值栏，鼠标悬浮在剩余价值栏上会显示计算面板"
+			},
+			{
+				"key": "enableMonthlyRenewalCalculation",
+				"name": "启用月续费统计栏",
+				"type": "switch",
+				"default": true,
+				"help": "启用后会在统计栏中增加月续费统计栏"
+			}
+		]
+    }
+}

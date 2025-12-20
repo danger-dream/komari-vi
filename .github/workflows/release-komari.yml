@@ -1,0 +1,258 @@
+name: Release Komari
+
+on:
+  push:
+    tags:
+      - "komari-v*"
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+          generate_release_notes: true
+
+  build-linux-windows:
+    needs: create-release
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        goos: [windows, linux]
+        goarch: [amd64, arm64, 386, riscv64]
+        include:
+          - goos: windows
+            goarch: amd64
+            zig_target_triple: x86_64-windows-gnu
+            binary_extension: .exe
+          - goos: windows
+            goarch: arm64
+            zig_target_triple: aarch64-windows-gnu
+            binary_extension: .exe
+          - goos: windows
+            goarch: 386
+            zig_target_triple: x86-windows-gnu
+            binary_extension: .exe
+          - goos: linux
+            goarch: amd64
+            zig_target_triple: x86_64-linux-musl
+            binary_extension: ""
+          - goos: linux
+            goarch: arm64
+            zig_target_triple: aarch64-linux-musl
+            binary_extension: ""
+          - goos: linux
+            goarch: 386
+            zig_target_triple: x86-linux-musl
+            binary_extension: ""
+          - goos: linux
+            goarch: riscv64
+            zig_target_triple: riscv64-linux-musl
+            binary_extension: ""
+        exclude:
+          - goos: windows
+            goarch: riscv64
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "23"
+
+      - name: Build web assets
+        working-directory: komari-web
+        run: |
+          npm ci
+          npm run build
+
+      - name: Sync web assets to backend
+        run: |
+          rm -rf komari/public/dist
+          mkdir -p komari/public/dist
+          cp -r komari-web/dist/* komari/public/dist/
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.23"
+
+      - name: Install Zig cross-compiler toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential curl
+          wget https://ziglang.org/download/0.14.1/zig-x86_64-linux-0.14.1.tar.xz
+          sudo tar -C /usr/local -Jxf zig-x86_64-linux-0.14.1.tar.xz
+          echo "PATH=$PATH:/usr/local/zig-x86_64-linux-0.14.1" >> $GITHUB_ENV
+
+      - name: Build binary
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+          CGO_ENABLED: 1
+          CC: zig cc -target ${{ matrix.zig_target_triple }}
+          GIN_MODE: release
+        working-directory: komari
+        run: |
+          VERSION="${GITHUB_REF_NAME#komari-}"
+          VERSION_HASH="${GITHUB_SHA}"
+          BINARY_NAME=../komari-${{ matrix.goos }}-${{ matrix.goarch }}${{ matrix.binary_extension }}
+          go build -trimpath -ldflags="-s -w -X github.com/komari-monitor/komari/utils.CurrentVersion=${VERSION} -X github.com/komari-monitor/komari/utils.VersionHash=${VERSION_HASH}" -o "${BINARY_NAME}"
+
+      - name: Upload binary to release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          FILE_NAME=komari-${{ matrix.goos }}-${{ matrix.goarch }}${{ matrix.binary_extension }}
+          gh release upload "${GITHUB_REF_NAME}" "${FILE_NAME}" --repo "${GITHUB_REPOSITORY}" --clobber
+
+  build-macos:
+    needs: create-release
+    runs-on: ${{ matrix.runs-on }}
+    strategy:
+      matrix:
+        include:
+          - goos: darwin
+            goarch: amd64
+            runs-on: macos-15-intel
+          - goos: darwin
+            goarch: arm64
+            runs-on: macos-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "23"
+
+      - name: Build web assets
+        working-directory: komari-web
+        run: |
+          npm ci
+          npm run build
+
+      - name: Sync web assets to backend
+        run: |
+          rm -rf komari/public/dist
+          mkdir -p komari/public/dist
+          cp -r komari-web/dist/* komari/public/dist/
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.23"
+
+      - name: Build binary
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+          CGO_ENABLED: 1
+          GIN_MODE: release
+        working-directory: komari
+        run: |
+          VERSION="${GITHUB_REF_NAME#komari-}"
+          VERSION_HASH="${GITHUB_SHA}"
+          BINARY_NAME=../komari-${{ matrix.goos }}-${{ matrix.goarch }}
+          go build -trimpath -ldflags="-s -w -X github.com/komari-monitor/komari/utils.CurrentVersion=${VERSION} -X github.com/komari-monitor/komari/utils.VersionHash=${VERSION_HASH}" -o "${BINARY_NAME}"
+
+      - name: Upload binary to release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          FILE_NAME=komari-${{ matrix.goos }}-${{ matrix.goarch }}
+          gh release upload "${GITHUB_REF_NAME}" "${FILE_NAME}" --repo "${GITHUB_REPOSITORY}" --clobber
+
+  docker:
+    needs: create-release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "23"
+
+      - name: Build web assets
+        working-directory: komari-web
+        run: |
+          npm ci
+          npm run build
+
+      - name: Sync web assets to backend
+        run: |
+          rm -rf komari/public/dist
+          mkdir -p komari/public/dist
+          cp -r komari-web/dist/* komari/public/dist/
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.23"
+
+      - name: Install Zig
+        run: |
+          wget https://ziglang.org/download/0.14.1/zig-x86_64-linux-0.14.1.tar.xz
+          sudo tar -C /usr/local -Jxf zig-x86_64-linux-0.14.1.tar.xz
+          echo "PATH=$PATH:/usr/local/zig-x86_64-linux-0.14.1" >> $GITHUB_ENV
+
+      - name: Build static binaries for Docker
+        env:
+          GOOS: linux
+          CGO_ENABLED: 1
+          GIN_MODE: release
+        working-directory: komari
+        run: |
+          VERSION="${GITHUB_REF_NAME#komari-}"
+          VERSION_HASH="${GITHUB_SHA}"
+          LDFLAGS="-s -w -X github.com/komari-monitor/komari/utils.CurrentVersion=${VERSION} -X github.com/komari-monitor/komari/utils.VersionHash=${VERSION_HASH}"
+
+          echo "Building for linux/amd64..."
+          GOARCH=amd64 CC="zig cc -target x86_64-linux-musl" go build -trimpath -ldflags="$LDFLAGS" -o komari-linux-amd64
+
+          echo "Building for linux/arm64..."
+          GOARCH=arm64 CC="zig cc -target aarch64-linux-musl" go build -trimpath -ldflags="$LDFLAGS" -o komari-linux-arm64
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set Docker tag
+        run: echo "VERSION=${GITHUB_REF_NAME#komari-}" >> $GITHUB_ENV
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: komari
+          file: komari/Dockerfile
+          push: true
+          platforms: linux/amd64,linux/arm64
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/komari:${{ env.VERSION }}
+            ghcr.io/${{ github.repository_owner }}/komari:latest
+          provenance: false
