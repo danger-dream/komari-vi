@@ -1,6 +1,7 @@
 package server
 
 import (
+	"os"
 	"testing"
 	"time"
 )
@@ -17,6 +18,9 @@ var testTargets = []struct {
 }
 
 func TestICMPPing(t *testing.T) {
+	if os.Getenv("ALLOW_NET_TEST") == "" {
+		t.Skip("skip ICMP ping tests: network access not allowed")
+	}
 	timeout := 3 * time.Second
 	for _, tt := range testTargets {
 		t.Run(tt.target, func(t *testing.T) {
@@ -32,6 +36,9 @@ func TestICMPPing(t *testing.T) {
 }
 
 func TestTCPPing(t *testing.T) {
+	if os.Getenv("ALLOW_NET_TEST") == "" {
+		t.Skip("skip TCP ping tests: network access not allowed")
+	}
 	timeout := 3 * time.Second
 	for _, tt := range testTargets {
 		t.Run(tt.target, func(t *testing.T) {
@@ -47,6 +54,9 @@ func TestTCPPing(t *testing.T) {
 }
 
 func TestHTTPPing(t *testing.T) {
+	if os.Getenv("ALLOW_NET_TEST") == "" {
+		t.Skip("skip HTTP ping tests: network access not allowed")
+	}
 	timeout := 3 * time.Second
 	for _, tt := range testTargets {
 		t.Run(tt.target, func(t *testing.T) {

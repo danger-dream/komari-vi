@@ -13,6 +13,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/komari-monitor/komari-agent/forward"
 	"github.com/komari-monitor/komari-agent/script"
 	"github.com/komari-monitor/komari-agent/ws"
 )
@@ -45,7 +46,8 @@ type wsMessage struct {
 		FolderID   *uint  `json:"folder_id"`
 		ScriptBody string `json:"script_body"`
 	} `json:"dependencies,omitempty"`
-	Params json.RawMessage `json:"params,omitempty"`
+	Params json.RawMessage      `json:"params,omitempty"`
+	Task   forward.TaskEnvelope `json:"task,omitempty"`
 }
 
 var (

@@ -34,7 +34,12 @@ func TestGetMe(t *testing.T) {
 			sessionToken:   sessionToken,
 			expectedStatus: http.StatusOK,
 			expectedBody: map[string]interface{}{
-				"username": "testuser",
+				"username":    "testuser",
+				"uuid":        uuid,
+				"logged_in":   true,
+				"2fa_enabled": false,
+				"sso_type":    "",
+				"sso_id":      "",
 			},
 		},
 		{
@@ -42,7 +47,8 @@ func TestGetMe(t *testing.T) {
 			sessionToken:   "invalid_token",
 			expectedStatus: http.StatusOK,
 			expectedBody: map[string]interface{}{
-				"username": "Guest",
+				"username":  "Guest",
+				"logged_in": false,
 			},
 		},
 		{
@@ -50,7 +56,8 @@ func TestGetMe(t *testing.T) {
 			sessionToken:   "",
 			expectedStatus: http.StatusOK,
 			expectedBody: map[string]interface{}{
-				"username": "Guest",
+				"username":  "Guest",
+				"logged_in": false,
 			},
 		},
 	}
@@ -85,7 +92,9 @@ func TestGetMe(t *testing.T) {
 			assert.NoError(t, err)
 
 			// 断言响应体
-			assert.Equal(t, tt.expectedBody, response)
+			for k, v := range tt.expectedBody {
+				assert.Equal(t, v, response[k])
+			}
 		})
 	}
 

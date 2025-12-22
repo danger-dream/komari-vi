@@ -1,5 +1,5 @@
 import React from 'react'
-import { useNodeDetails } from '@/contexts/NodeDetailsContext'
+import { useNodeDetails, type NodeDetail } from '@/contexts/NodeDetailsContext'
 import { useTranslation } from 'react-i18next'
 import Selector from './Selector'
 import Flag from './Flag'
@@ -18,6 +18,8 @@ interface NodeSelectorProps {
 	showViewModeToggle?: boolean
 	defaultViewMode?: 'list' | 'group' | 'region'
 	enableRegion?: boolean
+	filterNode?: (node: NodeDetail) => boolean
+	excludeIds?: string[]
 }
 
 const NodeSelector: React.FC<NodeSelectorProps> = ({
@@ -31,7 +33,9 @@ const NodeSelector: React.FC<NodeSelectorProps> = ({
 	ungroupedLabel,
 	showViewModeToggle = false,
 	defaultViewMode = 'list',
-	enableRegion = true
+	enableRegion = true,
+	filterNode,
+	excludeIds = []
 }) => {
 	const { nodeDetail, isLoading, error } = useNodeDetails()
 	const { t } = useTranslation()
@@ -42,13 +46,20 @@ const NodeSelector: React.FC<NodeSelectorProps> = ({
 	if (isLoading) return <div>Loading...</div>
 	if (error) return <div>{error}</div>
 
+	const excludedSet = new Set(excludeIds)
+	const filteredItems = nodeDetail.filter(n => {
+		if (filterNode && !filterNode(n)) return false
+		if (excludedSet.has(n.uuid) && !value.includes(n.uuid)) return false
+		return true
+	})
+
 	return (
 		<Selector
 			className={className}
 			hiddenDescription={hiddenDescription}
 			value={nodesFiltered}
 			onChange={onChange}
-			items={[...nodeDetail]}
+			items={filteredItems}
 			sortItems={compareServersByWeightName}
 			getId={n => n.uuid}
 			getLabel={n => (

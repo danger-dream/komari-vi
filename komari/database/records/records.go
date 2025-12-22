@@ -353,7 +353,7 @@ func migrateOldRecords(db *gorm.DB) error {
 		}
 
 		// 删除 records 表中的旧数据
-		if err := tx.Table("records").Where("time < ?", fourHoursAgo.Add(-1*time.Hour)).Delete(&models.Record{}).Error; err != nil {
+		if err := tx.Table("records").Where("time < ?", fourHoursAgo).Delete(&models.Record{}).Error; err != nil {
 			return err
 		}
 

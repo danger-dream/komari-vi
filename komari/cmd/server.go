@@ -345,6 +345,65 @@ func RunServer() {
 			clientGroup.GET("/:uuid/terminal", api.RequestTerminal)
 		}
 
+		// forward management
+		forwardGroup := adminAuthrized.Group("/forward")
+		{
+			forwardGroup.GET("", admin.ListForwards)
+			forwardGroup.POST("", admin.CreateForward)
+			forwardGroup.GET("/:id", admin.GetForward)
+			forwardGroup.PUT("/:id", admin.UpdateForward)
+			forwardGroup.DELETE("/:id", admin.DeleteForward)
+			forwardGroup.POST("/:id/enable", admin.EnableForward)
+			forwardGroup.POST("/:id/disable", admin.DisableForward)
+			forwardGroup.GET("/system-settings", admin.GetForwardSystemSettings)
+			forwardGroup.PUT("/system-settings", admin.UpdateForwardSystemSettings)
+			forwardGroup.GET("/realm-template", admin.GetRealmTemplate)
+			forwardGroup.PUT("/realm-template", admin.UpdateRealmTemplate)
+		}
+		// alias per design (/api/v1/forwards)
+		v1Forward := r.Group("/api/v1/forwards", api.AdminAuthMiddleware())
+		{
+			v1Forward.GET("", admin.ListForwards)
+			v1Forward.POST("", admin.CreateForward)
+			v1Forward.GET("/:id", admin.GetForward)
+			v1Forward.PUT("/:id", admin.UpdateForward)
+			v1Forward.DELETE("/:id", admin.DeleteForward)
+			v1Forward.POST("/:id/enable", admin.EnableForward)
+			v1Forward.POST("/:id/disable", admin.DisableForward)
+			v1Forward.POST("/:id/start", admin.StartForward)
+			v1Forward.POST("/:id/stop", admin.StopForward)
+			v1Forward.POST("/:id/apply-configs", admin.ApplyForwardConfigs)
+			v1Forward.GET("/system-settings", admin.GetForwardSystemSettings)
+			v1Forward.PUT("/system-settings", admin.UpdateForwardSystemSettings)
+			v1Forward.GET("/realm/default-config", admin.GetRealmTemplate)
+			v1Forward.PUT("/realm/default-config", admin.UpdateRealmTemplate)
+			v1Forward.POST("/check-port", admin.CheckPort)
+			v1Forward.POST("/preview-config", admin.PreviewForwardRealmConfig)
+			v1Forward.GET("/:id/alert-config", admin.GetForwardAlertConfig)
+			v1Forward.POST("/:id/alert-config", admin.UpdateForwardAlertConfig)
+			v1Forward.GET("/:id/stats", admin.GetForwardStats)
+			v1Forward.GET("/:id/topology", admin.GetForwardTopology)
+			v1Forward.GET("/:id/logs", admin.ListForwardLogs)
+			v1Forward.GET("/:id/logs/:nodeId", admin.GetForwardLog)
+			v1Forward.DELETE("/:id/logs/:nodeId", admin.DeleteForwardLog)
+			v1Forward.POST("/:id/logs/:nodeId/clear", admin.ClearForwardLog)
+			v1Forward.POST("/test-connectivity", admin.TestConnectivity)
+			v1Forward.GET("/:id/alert-history", admin.GetForwardAlertHistory)
+			v1Forward.POST("/:id/alert-history/:alertId/acknowledge", admin.AcknowledgeForwardAlert)
+		}
+		v1Realm := r.Group("/api/v1/realm", api.AdminAuthMiddleware())
+		{
+			v1Realm.POST("/binaries", admin.UploadRealmBinary)
+			v1Realm.GET("/binaries", admin.ListRealmBinaries)
+			v1Realm.DELETE("/binaries/:id", admin.DeleteRealmBinary)
+			v1Realm.GET("/binaries/:id/download", admin.DownloadRealmBinary)
+		}
+		r.GET("/api/v1/realm/binaries/download", api.DownloadRealmBinaryPublic)
+		// agent config sync
+		r.POST("/api/v1/forwards/:id/config/sync", api.TokenAuthMiddleware(), api.ForwardConfigSync)
+		// agent task run (forward tasks)
+		r.POST("/api/v1/agents/run_task", api.AdminAuthMiddleware(), admin.RunAgentTask)
+
 		// records
 		recordGroup := adminAuthrized.Group("/record")
 		{

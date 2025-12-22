@@ -94,6 +94,14 @@ export const routes: RouteObject[] = [
 				element: React.createElement(lazy(() => import('./pages/admin/pingTask')))
 			},
 			{
+				path: 'forward',
+				element: React.createElement(lazy(() => import('./pages/admin/forward')))
+			},
+			{
+				path: 'forward/:id/dashboard',
+				element: React.createElement(lazy(() => import('./pages/admin/forward/dashboard')))
+			},
+			{
 				path: 'sp-ping',
 				element: React.createElement(lazy(() => import('./pages/admin/spPingTask')))
 			},

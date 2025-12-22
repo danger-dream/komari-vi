@@ -1,8 +1,10 @@
 package api
 
 import (
+	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 	"sync"
 	"time"
 
@@ -10,8 +12,6 @@ import (
 	"github.com/gorilla/websocket"
 	"github.com/komari-monitor/komari/common"
 	"github.com/patrickmn/go-cache"
-
-	"strconv"
 
 	"github.com/komari-monitor/komari/database/config"
 	"github.com/komari-monitor/komari/database/dbcore"
@@ -36,22 +36,22 @@ var TerminalSessions = make(map[string]*TerminalSession)
 
 // Looking-Glass 会话
 type LgSession struct {
-	ID           string
-	UUID         string
-	UserUUID     string
-	Browser      *websocket.Conn
-	Agent        *websocket.Conn
-	RequesterIp  string
-	Tool         string
-	Input        string
-	AuthID       uint
-	Mode         string
-	Code         string
-	Timeout      int
-	Command      string
-	DisplayIP    string
-	DisplayPort  int
-	AllowStop    bool
+	ID          string
+	UUID        string
+	UserUUID    string
+	Browser     *websocket.Conn
+	Agent       *websocket.Conn
+	RequesterIp string
+	Tool        string
+	Input       string
+	AuthID      uint
+	Mode        string
+	Code        string
+	Timeout     int
+	Command     string
+	DisplayIP   string
+	DisplayPort int
+	AllowStop   bool
 }
 
 var LgSessionsMutex = &sync.Mutex{}
@@ -160,6 +160,19 @@ func RespondSuccessMessage(c *gin.Context, message string, data interface{}) {
 // RespondError sends an error response with message.
 func RespondError(c *gin.Context, httpStatus int, message string) {
 	Respond(c, httpStatus, "error", message, nil)
+}
+
+// GetUintParam 解析 Path 参数为 uint
+func GetUintParam(c *gin.Context, key string) (uint, error) {
+	val := c.Param(key)
+	if val == "" {
+		return 0, fmt.Errorf("missing param %s", key)
+	}
+	parsed, err := strconv.ParseUint(val, 10, 64)
+	if err != nil {
+		return 0, err
+	}
+	return uint(parsed), nil
 }
 func GetVersion(c *gin.Context) {
 	RespondSuccess(c, gin.H{

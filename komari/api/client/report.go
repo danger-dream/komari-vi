@@ -16,9 +16,11 @@ import (
 	jsonRpc "github.com/komari-monitor/komari/api/jsonRpc"
 	"github.com/komari-monitor/komari/common"
 	"github.com/komari-monitor/komari/database/clients"
+	dbforward "github.com/komari-monitor/komari/database/forward"
 	"github.com/komari-monitor/komari/database/models"
 	scriptdb "github.com/komari-monitor/komari/database/script"
 	"github.com/komari-monitor/komari/database/tasks"
+	"github.com/komari-monitor/komari/forward"
 	"github.com/komari-monitor/komari/utils/notifier"
 	"github.com/komari-monitor/komari/ws"
 	"github.com/patrickmn/go-cache"
@@ -288,6 +290,55 @@ func processMessage(conn *ws.SafeConn, message []byte, uuid string) {
 			Time:       reqBody.Time,
 			ClientUUID: uuid,
 		})
+	case "forward_task_result":
+		var resp struct {
+			TaskID   string          `json:"task_id"`
+			TaskType string          `json:"task_type"`
+			Success  bool            `json:"success"`
+			Message  string          `json:"message"`
+			Payload  json.RawMessage `json:"payload"`
+		}
+		if err := json.Unmarshal(message, &resp); err != nil {
+			conn.WriteJSON(gin.H{"status": "error", "error": "Invalid forward task result format"})
+			return
+		}
+		forward.CompleteResult(forward.AgentTaskResult{
+			TaskID:   resp.TaskID,
+			TaskType: forward.TaskType(resp.TaskType),
+			NodeID:   uuid,
+			Success:  resp.Success,
+			Message:  resp.Message,
+			Payload:  resp.Payload,
+		})
+	case "forward_config_sync":
+		var payload struct {
+			RuleID            uint                   `json:"rule_id"`
+			NodeID            string                 `json:"node_id"`
+			RealmConfig       string                 `json:"realm_config"`
+			ConfigJSONUpdates map[string]interface{} `json:"config_json_updates"`
+			Reason            string                 `json:"reason"`
+		}
+		if err := json.Unmarshal(message, &payload); err != nil {
+			conn.WriteJSON(gin.H{"status": "error", "error": "Invalid forward config sync format"})
+			return
+		}
+		go func() {
+			if err := forward.ApplyConfigSync(payload.RuleID, payload.NodeID, payload.RealmConfig, payload.ConfigJSONUpdates, payload.Reason); err != nil {
+				log.Printf("apply forward config sync failed: %v", err)
+			}
+		}()
+	case "forward_stats":
+		var payload models.ForwardStat
+		if err := json.Unmarshal(message, &payload); err != nil {
+			conn.WriteJSON(gin.H{"status": "error", "error": "Invalid forward stats format"})
+			return
+		}
+		if payload.RuleID == 0 || payload.NodeID == "" {
+			conn.WriteJSON(gin.H{"status": "error", "error": "Missing rule_id or node_id"})
+			return
+		}
+		_ = dbforward.UpsertForwardStat(&payload)
+		forward.UpdateStatsAndBroadcast(&payload)
 	default:
 		log.Printf("Unknown message type: %s", msgType.Type)
 		conn.WriteJSON(gin.H{"status": "error", "error": "Unknown message type"})

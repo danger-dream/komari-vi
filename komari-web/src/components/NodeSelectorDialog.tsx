@@ -2,6 +2,7 @@ import React from 'react'
 import { Dialog, Button, Flex } from '@radix-ui/themes'
 import NodeSelector from './NodeSelector'
 import { useTranslation } from 'react-i18next'
+import { type NodeDetail } from '@/contexts/NodeDetailsContext'
 
 interface NodeSelectorDialogProps {
 	open?: boolean
@@ -16,6 +17,9 @@ interface NodeSelectorDialogProps {
 	showViewModeToggle?: boolean
 	defaultViewMode?: 'list' | 'group' | 'region'
 	enableRegion?: boolean
+	disabled?: boolean
+	filterNode?: (node: NodeDetail) => boolean
+	excludeIds?: string[]
 }
 
 const NodeSelectorDialog: React.FC<NodeSelectorDialogProps> = ({
@@ -30,7 +34,10 @@ const NodeSelectorDialog: React.FC<NodeSelectorDialogProps> = ({
 	children, // 解构 children
 	showViewModeToggle = false,
 	defaultViewMode,
-	enableRegion = true
+	enableRegion = true,
+	disabled = false,
+	filterNode,
+	excludeIds
 }) => {
 	const { t } = useTranslation()
 	// 自动/受控弹窗开关
@@ -56,7 +63,7 @@ const NodeSelectorDialog: React.FC<NodeSelectorDialogProps> = ({
 
 	return (
 		<Dialog.Root open={open} onOpenChange={onOpenChange}>
-			<Dialog.Trigger asChild>{children ? children : <Button>{title || t('common.select')}</Button>}</Dialog.Trigger>
+			<Dialog.Trigger asChild>{children ? children : <Button disabled={disabled}>{title || t('common.select')}</Button>}</Dialog.Trigger>
 			<Dialog.Content style={contentStyle}>
 				<Dialog.Title>{title || t('common.select')}</Dialog.Title>
 				<Flex direction="column" gap="3">
@@ -72,6 +79,8 @@ const NodeSelectorDialog: React.FC<NodeSelectorDialogProps> = ({
 						ungroupedLabel={t('common.ungrouped', { defaultValue: '未分组' })}
 						showViewModeToggle={showViewModeToggle}
 						defaultViewMode={defaultViewMode}
+						filterNode={filterNode}
+						excludeIds={excludeIds}
 					/>
 					<Flex justify="end" gap="2">
 						<Dialog.Close>

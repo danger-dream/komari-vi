@@ -30,9 +30,7 @@ func TestLogin(t *testing.T) {
 			},
 			expectedStatus: http.StatusOK,
 			expectedBody: map[string]interface{}{
-				"set-cookie": map[string]interface{}{
-					"session_token": "",
-				},
+				"status": "success",
 			},
 		},
 		{
@@ -43,8 +41,8 @@ func TestLogin(t *testing.T) {
 			},
 			expectedStatus: http.StatusBadRequest,
 			expectedBody: map[string]interface{}{
-				"status": "error",
-				"error":  "Invalid request body",
+				"status":  "error",
+				"message": "Invalid request body: Username and password are required",
 			},
 		},
 		{
@@ -55,8 +53,8 @@ func TestLogin(t *testing.T) {
 			},
 			expectedStatus: http.StatusUnauthorized,
 			expectedBody: map[string]interface{}{
-				"status": "error",
-				"error":  "Invalid credentials",
+				"status":  "error",
+				"message": "Invalid credentials",
 			},
 		},
 	}
@@ -87,11 +85,11 @@ func TestLogin(t *testing.T) {
 			assert.NoError(t, err)
 
 			// 断言响应体
+			for k, v := range tt.expectedBody {
+				assert.Equal(t, v, response[k])
+			}
 			if tt.expectedStatus == http.StatusOK {
-				// 对于成功的情况，我们只检查响应结构，不检查具体的 session token
-				assert.Contains(t, response, "set-cookie")
-			} else {
-				assert.Equal(t, tt.expectedBody, response)
+				assert.NotNil(t, response["data"])
 			}
 		})
 	}

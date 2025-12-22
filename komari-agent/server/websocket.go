@@ -11,6 +11,7 @@ import (
 
 	"github.com/gorilla/websocket"
 	"github.com/komari-monitor/komari-agent/dnsresolver"
+	"github.com/komari-monitor/komari-agent/forward"
 	"github.com/komari-monitor/komari-agent/monitoring"
 	"github.com/komari-monitor/komari-agent/terminal"
 	"github.com/komari-monitor/komari-agent/utils"
@@ -159,6 +160,10 @@ func handleWebSocketMessages(conn *ws.SafeConn, done chan<- struct{}) {
 			go RunScriptFromMessage(conn, &message)
 			continue
 		}
+		if message.Message == "forward_task" && message.Task.TaskID != "" {
+			go handleForwardTask(conn, message.Task)
+			continue
+		}
 		if message.Message == "ping" || message.PingTaskID != 0 || message.PingType != "" || message.PingTarget != "" {
 			go NewPingTask(conn, message.PingTaskID, message.PingType, message.PingTarget)
 			continue
@@ -199,6 +204,38 @@ func establishTerminalConnection(token, id, endpoint string) {
 	terminal.StartTerminal(conn)
 	if conn != nil {
 		conn.Close()
+	}
+}
+
+func handleForwardTask(conn *ws.SafeConn, task forward.TaskEnvelope) {
+	manager := forward.NewManager()
+	respPayload, err := manager.HandleTask(conn, task)
+	success := err == nil
+	msg := ""
+	if err != nil {
+		msg = err.Error()
+	}
+	var payload json.RawMessage
+	if respPayload != nil {
+		if b, e := json.Marshal(respPayload); e == nil {
+			payload = b
+		} else {
+			msg = fmt.Sprintf("marshal response failed: %v", e)
+			success = false
+		}
+	}
+	result := map[string]interface{}{
+		"message":   "forward_task_result",
+		"task_id":   task.TaskID,
+		"task_type": task.TaskType,
+		"success":   success,
+		"detail":    msg,
+	}
+	if len(payload) > 0 {
+		result["payload"] = json.RawMessage(payload)
+	}
+	if err := conn.WriteJSON(result); err != nil {
+		log.Printf("send forward_task_result failed: %v", err)
 	}
 }
 

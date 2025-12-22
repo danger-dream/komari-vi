@@ -3,6 +3,7 @@ package dbcore
 import (
 	"archive/zip"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -20,6 +21,17 @@ import (
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
+
+const defaultRealmConfigTemplate = `[log]
+level = "info"
+output = "stdout"
+
+[network]
+no_tcp = false
+use_udp = false
+tcp_timeout = 10
+tcp_keepalive = 30
+`
 
 // zipDirectoryExcluding 将 srcDir 打包为 dstZip，exclude 是绝对路径集合需要排除
 func zipDirectoryExcluding(srcDir, dstZip string, exclude map[string]struct{}) error {
@@ -516,6 +528,14 @@ func GetDBInstance() *gorm.DB {
 			&models.ScriptVariable{},
 			&models.SPPingTask{},
 			&models.SPPingRecord{},
+			&models.ForwardRule{},
+			&models.ForwardStat{},
+			&models.ForwardTrafficHistory{},
+			&models.ForwardAlertConfig{},
+			&models.ForwardAlertHistory{},
+			&models.RealmBinary{},
+			&models.ForwardSystemSettings{},
+			&models.RealmConfigTemplate{},
 		)
 		if err != nil {
 			log.Fatalf("Failed to create tables: %v", err)
@@ -545,7 +565,41 @@ func GetDBInstance() *gorm.DB {
 		if err != nil {
 			log.Printf("Failed to create Task and TaskResult table, it may already exist: %v", err)
 		}
+		ensureForwardDefaults(instance)
 
 	})
 	return instance
+}
+
+func ensureForwardDefaults(db *gorm.DB) {
+	if db == nil {
+		return
+	}
+	// Forward system settings (single row)
+	var settings models.ForwardSystemSettings
+	if err := db.First(&settings, 1).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+		settings = models.ForwardSystemSettings{
+			ID:                     1,
+			StatsReportInterval:    10,
+			HealthCheckInterval:    10,
+			HistoryAggregatePeriod: "1hour",
+			RealmCrashRestartLimit: 3,
+			ProcessStopTimeout:     5,
+		}
+		if createErr := db.Create(&settings).Error; createErr != nil {
+			log.Printf("Failed to seed forward_system_settings: %v", createErr)
+		}
+	}
+
+	// Realm config template (single row)
+	var template models.RealmConfigTemplate
+	if err := db.First(&template, 1).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+		template = models.RealmConfigTemplate{
+			ID:           1,
+			TemplateToml: defaultRealmConfigTemplate,
+		}
+		if createErr := db.Create(&template).Error; createErr != nil {
+			log.Printf("Failed to seed realm_config_template: %v", createErr)
+		}
+	}
 }

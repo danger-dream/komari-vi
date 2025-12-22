@@ -80,6 +80,11 @@
 			"icon": "Activity"
 		},
 		{
+			"labelKey": "forward.title",
+			"path": "/admin/forward",
+			"icon": "Route"
+		},
+		{
 			"labelKey": "spPing.title",
 			"path": "/admin/sp-ping",
 			"icon": "BarChart3"
