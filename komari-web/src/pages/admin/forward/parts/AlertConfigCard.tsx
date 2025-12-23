@@ -20,30 +20,38 @@ type Props = {
 	collapsible?: boolean
 	defaultOpen?: boolean
 	variant?: 'card' | 'embedded'
+	hideEnableSwitch?: boolean
 }
 
-const AlertConfigCard = ({ value, onChange, collapsible = false, defaultOpen = true, variant = 'card' }: Props) => {
+const AlertConfigCard = ({ value, onChange, collapsible = false, defaultOpen = true, variant = 'card', hideEnableSwitch = false }: Props) => {
 	const { t } = useTranslation()
 	const [open, setOpen] = useState(defaultOpen)
 
 	const update = (patch: Partial<AlertConfig>) => onChange({ ...value, ...patch })
 	const visible = collapsible ? open : true
 	const Wrapper: any = variant === 'card' ? Card : 'div'
+	const showHeader = variant === 'card' || (!hideEnableSwitch || collapsible)
 
 	return (
 		<Wrapper className={variant === 'embedded' ? 'space-y-2' : undefined}>
-			<Flex justify={variant === 'embedded' ? 'end' : 'between'} align="center" mb="2">
-				{variant === 'card' && <Text weight="bold">{t('forward.alertConfig', { defaultValue: '告警配置' })}</Text>}
-				<Flex align="center" gap="2">
-					<Text size="2">{t('forward.enable', { defaultValue: '启用' })}</Text>
-					<Switch checked={value.enabled} onCheckedChange={v => update({ enabled: Boolean(v) })} />
-					{collapsible && (
-						<Button variant="ghost" size="1" onClick={() => setOpen(prev => !prev)}>
-							<ChevronDownIcon className={visible ? 'rotate-180 transition-transform' : 'transition-transform'} />
-						</Button>
-					)}
+			{showHeader && (
+				<Flex justify={variant === 'embedded' ? 'end' : 'between'} align="center" mb="2">
+					{variant === 'card' && <Text weight="bold">{t('forward.alertConfig', { defaultValue: '告警配置' })}</Text>}
+					<Flex align="center" gap="2">
+						{!hideEnableSwitch && (
+							<>
+								<Text size="2">{t('forward.enable', { defaultValue: '启用' })}</Text>
+								<Switch checked={value.enabled} onCheckedChange={v => update({ enabled: Boolean(v) })} />
+							</>
+						)}
+						{collapsible && (
+							<Button variant="ghost" size="1" onClick={() => setOpen(prev => !prev)}>
+								<ChevronDownIcon className={visible ? 'rotate-180 transition-transform' : 'transition-transform'} />
+							</Button>
+						)}
+					</Flex>
 				</Flex>
-			</Flex>
+			)}
 			{visible && (
 				<div className="space-y-2">
 					<ToggleRow

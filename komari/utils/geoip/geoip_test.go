@@ -26,6 +26,7 @@ func TestIpInfo(t *testing.T) {
 	geoip.CurrentProvider, _ = geoip.NewIPInfoService()
 	testIpAddr(t)
 }
+
 func testIpAddr(t *testing.T) {
 	// IPv4
 	ipaddr := "8.8.8.8"
@@ -34,7 +35,6 @@ func testIpAddr(t *testing.T) {
 	if err != nil {
 		t.Errorf("Failed to get GeoIP info for IP %s: %v", ipaddr, err)
 	}
-
 	if record != nil {
 		if record.ISOCode == "" && record.Name == "" {
 			t.Errorf("Country information is missing for IP %s", ipaddr)
@@ -42,7 +42,6 @@ func testIpAddr(t *testing.T) {
 	} else {
 		t.Errorf("GeoIP record is nil for IP %s", ipaddr)
 	}
-
 	t.Logf("IPv4:[%s]%s - %s", ipaddr, record.ISOCode, record.Name)
 
 	// IPv6

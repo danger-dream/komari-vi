@@ -161,18 +161,107 @@
 	  .route-step-badge { width: 22px; height: 22px; border-radius: 999px; background: var(--accent-9); color: #fff; font-size: 12px; line-height: 1; display: inline-flex; align-items: center; justify-content: center; }
 	  .route-help { color: var(--gray-11); font-size: 0.75rem; line-height: 1.35; }
 
-	  /* 转发 - 路由流程展示（入口 → 中继/跳点 → 目标） */
-	  .flow-node {
-	    background: #fff;
-	    border-radius: 14px;
-	    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.06), 0 0 0 1px rgba(15, 23, 42, 0.04);
-	    overflow: hidden;
+	  /* 转发 - 时间线/流程线样式 */
+	  .route-timeline {
+	    position: relative;
+	    padding-left: 32px;
 	  }
-	  .flow-node-header { padding: 12px 14px 0; display: flex; align-items: flex-start; justify-content: space-between; }
-	  .flow-node-title { color: var(--gray-12); font-size: 0.85rem; font-weight: 600; line-height: 1.2; }
-	  .flow-node-subtitle { color: var(--gray-11); font-size: 0.75rem; margin-top: 2px; }
-	  .flow-node-body { padding: 12px 14px 14px; }
-	  .flow-arrow { display: flex; justify-content: center; padding: 10px 0; color: var(--gray-9); }
+	  /* 垂直连接线 */
+	  .route-timeline::before {
+	    content: '';
+	    position: absolute;
+	    left: 11px;
+	    top: 24px;
+	    bottom: 24px;
+	    width: 2px;
+	    background: linear-gradient(to bottom, var(--accent-6), var(--accent-4));
+	    border-radius: 1px;
+	  }
+	  /* 时间线步骤 */
+	  .timeline-step {
+	    position: relative;
+	    padding-bottom: 20px;
+	  }
+	  .timeline-step:last-child {
+	    padding-bottom: 0;
+	  }
+	  /* 步骤圆点 */
+	  .timeline-dot {
+	    position: absolute;
+	    left: -32px;
+	    top: 0;
+	    width: 24px;
+	    height: 24px;
+	    border-radius: 50%;
+	    background: var(--accent-9);
+	    color: #fff;
+	    display: flex;
+	    align-items: center;
+	    justify-content: center;
+	    font-size: 12px;
+	    font-weight: 600;
+	    box-shadow: 0 0 0 4px #fff, 0 2px 4px rgba(0,0,0,0.1);
+	    z-index: 1;
+	  }
+	  .timeline-dot.entry { background: var(--teal-9); }
+	  .timeline-dot.relay { background: var(--orange-9); }
+	  .timeline-dot.hop { background: var(--violet-9); }
+	  .timeline-dot.target { background: var(--green-9); }
+	  /* 步骤内容卡片 */
+	  .timeline-content {
+	    background: #fff;
+	    border-radius: 12px;
+	    box-shadow: 0 1px 3px rgba(16, 24, 40, 0.08), 0 0 0 1px rgba(15, 23, 42, 0.04);
+	    overflow: hidden;
+	    transition: box-shadow 0.2s ease;
+	  }
+	  .timeline-content:hover {
+	    box-shadow: 0 4px 12px rgba(16, 24, 40, 0.1), 0 0 0 1px rgba(15, 23, 42, 0.06);
+	  }
+	  .timeline-header {
+	    padding: 12px 16px;
+	    border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+	    display: flex;
+	    align-items: center;
+	    justify-content: space-between;
+	  }
+	  .timeline-header-left {
+	    display: flex;
+	    align-items: center;
+	    gap: 10px;
+	  }
+	  .timeline-icon {
+	    width: 32px;
+	    height: 32px;
+	    border-radius: 8px;
+	    display: flex;
+	    align-items: center;
+	    justify-content: center;
+	  }
+	  .timeline-icon.entry { background: var(--teal-3); color: var(--teal-11); }
+	  .timeline-icon.relay { background: var(--orange-3); color: var(--orange-11); }
+	  .timeline-icon.hop { background: var(--violet-3); color: var(--violet-11); }
+	  .timeline-icon.target { background: var(--green-3); color: var(--green-11); }
+	  .timeline-title { font-size: 0.875rem; font-weight: 600; color: var(--gray-12); }
+	  .timeline-subtitle { font-size: 0.75rem; color: var(--gray-11); margin-top: 1px; }
+	  .timeline-body {
+	    padding: 16px;
+	  }
+	  /* 连接线装饰 */
+	  .timeline-connector {
+	    position: absolute;
+	    left: -21px;
+	    top: 24px;
+	    height: calc(100% - 24px);
+	    display: flex;
+	    flex-direction: column;
+	    align-items: center;
+	  }
+	  .timeline-connector-line {
+	    flex: 1;
+	    width: 2px;
+	    background: linear-gradient(to bottom, var(--accent-5), var(--accent-4));
+	  }
 	}
 
 /* 统一 Radix Select/Popover 层级，确保在 Drawer 中可点击且不被遮挡 */
