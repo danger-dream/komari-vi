@@ -135,12 +135,63 @@
 }
 
 @layer base {
-	* {
-		@apply border-border outline-ring/50;
+    * {
+        @apply border-border outline-ring/50;
+    }
+    body {
+        @apply bg-background text-foreground;
+    }
+}
+
+@layer components {
+  /* 统一的面板样式 */
+  .panel { @apply bg-white rounded-xl p-4 shadow-sm; }
+  /* 使用 Radix 变量避免在 @apply 中引用非标准色阶 */
+  .section-title { color: var(--gray-12); font-size: 0.95rem; font-weight: 500; line-height: 1.4; }
+  .section-divider { border-color: var(--gray-4); }
+
+  /* 转发 - 路由构建器（更轻的层次：用底色 + 阴影，而不是堆边框） */
+  .route-surface { background: #f8fafc; border-radius: 14px; padding: 14px; }
+  .route-card { background: #fff; border-radius: 14px; box-shadow: 0 1px 2px rgba(16, 24, 40, 0.06); overflow: hidden; }
+  .route-card-header { padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(15, 23, 42, 0.06); }
+  .route-card-title { color: var(--gray-12); font-size: 0.9rem; font-weight: 600; }
+  .route-card-subtitle { color: var(--gray-11); font-size: 0.75rem; }
+  .route-card-body { padding: 14px; }
+  .route-step { display: flex; align-items: center; gap: 10px; }
+	  .route-step-badge { width: 22px; height: 22px; border-radius: 999px; background: var(--accent-9); color: #fff; font-size: 12px; line-height: 1; display: inline-flex; align-items: center; justify-content: center; }
+	  .route-help { color: var(--gray-11); font-size: 0.75rem; line-height: 1.35; }
+
+	  /* 转发 - 路由流程展示（入口 → 中继/跳点 → 目标） */
+	  .flow-node {
+	    background: #fff;
+	    border-radius: 14px;
+	    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.06), 0 0 0 1px rgba(15, 23, 42, 0.04);
+	    overflow: hidden;
+	  }
+	  .flow-node-header { padding: 12px 14px 0; display: flex; align-items: flex-start; justify-content: space-between; }
+	  .flow-node-title { color: var(--gray-12); font-size: 0.85rem; font-weight: 600; line-height: 1.2; }
+	  .flow-node-subtitle { color: var(--gray-11); font-size: 0.75rem; margin-top: 2px; }
+	  .flow-node-body { padding: 12px 14px 14px; }
+	  .flow-arrow { display: flex; justify-content: center; padding: 10px 0; color: var(--gray-9); }
 	}
-	body {
-		@apply bg-background text-foreground;
-	}
+
+/* 统一 Radix Select/Popover 层级，确保在 Drawer 中可点击且不被遮挡 */
+:root {
+	    --z-dialog-overlay: 8000; /* 覆盖抽屉遮罩 */
+	    --z-dialog-content: 8001; /* 始终高于 overlay */
+	    --z-popper: 8100;         /* 下拉/气泡高于对话框内容 */
+}
+
+/* Radix Themes 类名前缀：rt- */
+.rt-DialogOverlay { z-index: var(--z-dialog-overlay) !important; }
+.rt-DialogContent { z-index: var(--z-dialog-content) !important; }
+.rt-PopperContent, .rt-SelectContent, .rt-PopoverContent { z-index: var(--z-popper) !important; }
+
+/* 侧滑抽屉内：下拉/弹出触发器默认最大化（占满父容器宽度），避免只有展开图标的窄触发器 */
+[data-slot="drawer-content"] .rt-SelectTrigger,
+[data-slot="drawer-content"] .rt-PopoverTrigger,
+[data-slot="drawer-content"] .rt-DialogTrigger {
+    width: 100% !important;
 }
 
 ::-webkit-scrollbar {

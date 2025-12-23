@@ -17,9 +17,13 @@ interface NodeSelectorDialogProps {
 	showViewModeToggle?: boolean
 	defaultViewMode?: 'list' | 'group' | 'region'
 	enableRegion?: boolean
-	disabled?: boolean
-	filterNode?: (node: NodeDetail) => boolean
-	excludeIds?: string[]
+    disabled?: boolean
+    filterNode?: (node: NodeDetail) => boolean
+    excludeIds?: string[]
+    // 让触发按钮占满可用宽度，适配侧滑表单的“选择框默认最大化”需求
+    block?: boolean
+	// 触发按钮尺寸（用于紧凑表格/列表场景）
+	triggerSize?: '1' | '2' | '3' | '4'
 }
 
 const NodeSelectorDialog: React.FC<NodeSelectorDialogProps> = ({
@@ -36,8 +40,10 @@ const NodeSelectorDialog: React.FC<NodeSelectorDialogProps> = ({
 	defaultViewMode,
 	enableRegion = true,
 	disabled = false,
-	filterNode,
-	excludeIds
+    filterNode,
+    excludeIds,
+    block = false,
+	triggerSize = '2'
 }) => {
 	const { t } = useTranslation()
 	// 自动/受控弹窗开关
@@ -55,18 +61,32 @@ const NodeSelectorDialog: React.FC<NodeSelectorDialogProps> = ({
 		onOpenChange(false)
 	}
 
-	const contentStyle: React.CSSProperties = {
-		maxWidth: 420,
-		maxHeight: '80vh',
-		overflow: 'hidden'
-	}
+    const contentStyle: React.CSSProperties = {
+        maxWidth: 420,
+        maxHeight: '80vh',
+        overflow: 'hidden'
+        // 层级交由全局 .rt-DialogContent/.rt-DialogOverlay 统一控制
+    }
 
 	return (
-		<Dialog.Root open={open} onOpenChange={onOpenChange}>
-			<Dialog.Trigger asChild>{children ? children : <Button disabled={disabled}>{title || t('common.select')}</Button>}</Dialog.Trigger>
-			<Dialog.Content style={contentStyle}>
-				<Dialog.Title>{title || t('common.select')}</Dialog.Title>
-				<Flex direction="column" gap="3">
+        <Dialog.Root open={open} onOpenChange={onOpenChange}>
+            <Dialog.Trigger asChild>
+                {children ? (
+                    children
+                ) : (
+                    <Button
+						size={triggerSize}
+						variant="outline"
+						color="gray"
+						disabled={disabled}
+						className={block ? 'w-full' : undefined}>
+                        {title || t('common.select')}
+                    </Button>
+                )}
+            </Dialog.Trigger>
+            <Dialog.Content style={contentStyle}>
+                <Dialog.Title>{title || t('common.select')}</Dialog.Title>
+                <Flex direction="column" gap="3">
 					<NodeSelector
 						value={temp}
 						onChange={setTemp}

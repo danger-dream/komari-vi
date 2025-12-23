@@ -6,8 +6,8 @@ import { ChevronDownIcon, PlusIcon, ReloadIcon } from '@radix-ui/react-icons'
 import { useNavigate } from 'react-router-dom'
 
 import RuleTable from './parts/RuleTable'
-import RuleFormDialog, { type RuleFormState } from './parts/RuleFormDialog'
-import RuleDetailDialog from './parts/RuleDetailDialog'
+import RuleFormDrawer, { type RuleFormState } from './parts/RuleFormDrawer'
+import RuleDetailDrawer from './parts/RuleDetailDrawer'
 import SettingsPanel from './parts/SettingsPanel'
 import TemplateEditor from './parts/TemplateEditor'
 import TestConnectivityDialog from './parts/TestConnectivityDialog'
@@ -393,7 +393,7 @@ const ForwardPage = () => {
 													variant="ghost"
 													onClick={() =>
 														setCollapsedGroups(prev => ({ ...prev, [group.group]: !collapsed }))
-													)}>
+													}>
 													<ChevronDownIcon className={collapsed ? '' : 'rotate-180 transition-transform'} />
 													{group.group} ({group.items.length})
 												</Button>
@@ -444,7 +444,7 @@ const ForwardPage = () => {
 					</Tabs.Content>
 				</Tabs.Root>
 
-				<RuleFormDialog
+				<RuleFormDrawer
 					open={formOpen}
 					initial={editing ?? defaultForm}
 					onClose={() => {
@@ -454,7 +454,7 @@ const ForwardPage = () => {
 					onSubmit={handleSave}
 				/>
 
-				<RuleDetailDialog rule={detail} onClose={() => setDetail(null)} />
+				<RuleDetailDrawer rule={detail} onClose={() => setDetail(null)} />
 				<TestConnectivityDialog open={!!testRule} ruleId={testRule?.id} onClose={() => setTestRule(null)} />
 				<RuleLogsDialog open={!!logRule} ruleId={logRule?.id} onClose={() => setLogRule(null)} />
 			</Flex>

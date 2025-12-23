@@ -2,7 +2,7 @@ import { Dialog, Box, Flex, Text, TextArea, Button, Select } from '@radix-ui/the
 import { useTranslation } from 'react-i18next'
 import { useEffect, useMemo, useState } from 'react'
 import { toast } from 'sonner'
-import { ForwardRule } from '..'
+import type { ForwardRule } from '..'
 import { useNodeDetails } from '@/contexts/NodeDetailsContext'
 
 type Props = {

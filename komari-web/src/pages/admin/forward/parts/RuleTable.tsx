@@ -1,4 +1,4 @@
-import { ForwardRule } from '..'
+import type { ForwardRule } from '..'
 import { Badge, Button, Checkbox, DropdownMenu, Flex, IconButton, Switch, Table, Text } from '@radix-ui/themes'
 import { DotsHorizontalIcon, EyeOpenIcon, Pencil1Icon, RocketIcon, StopIcon } from '@radix-ui/react-icons'
 import { BarChart3, GripVertical } from 'lucide-react'
