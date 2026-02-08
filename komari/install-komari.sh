@@ -197,7 +197,7 @@ install_binary() {
     log_step "下载 Komari 二进制文件..."
     log_info "URL: $download_url"
 
-    if ! curl -L -o "$BINARY_PATH" "$download_url"; then
+    if ! curl -fL -o "$BINARY_PATH" "$download_url"; then
         log_error "下载失败"
         return 1
     fi
@@ -297,22 +297,36 @@ upgrade_komari() {
         return 1
     fi
 
-    log_step "停止 Komari 服务..."
-    systemctl stop ${SERVICE_NAME}.service
-
-    log_step "备份当前二进制文件..."
-    cp "$BINARY_PATH" "${BINARY_PATH}.backup.$(date +%Y%m%d_%H%M%S)"
-
     local arch=$(detect_arch)
     local file_name="komari-linux-${arch}"
     read -p "请输入要升级到的版本号 (留空为最新): " input_version
     local download_url
     download_url=$(build_download_url "$file_name" "$input_version")
 
-    log_step "下载最新版本..."
-    if ! curl -L -o "$BINARY_PATH" "$download_url"; then
-        log_error "下载失败，正在从备份恢复"
-        mv "${BINARY_PATH}.backup."* "$BINARY_PATH"
+    log_step "停止 Komari 服务..."
+    systemctl stop ${SERVICE_NAME}.service
+
+    log_step "备份当前二进制文件..."
+    local backup_file="${BINARY_PATH}.backup.$(date +%Y%m%d_%H%M%S)"
+    cp "$BINARY_PATH" "$backup_file"
+
+    log_step "下载新版本..."
+    log_info "URL: $download_url"
+    if ! curl -fL -o "$BINARY_PATH" "$download_url"; then
+        log_error "下载失败，正在从备份恢复..."
+        mv "$backup_file" "$BINARY_PATH"
+        chmod +x "$BINARY_PATH"
+        systemctl start ${SERVICE_NAME}.service
+        return 1
+    fi
+
+    # 验证下载文件的完整性（至少应大于 1MB）
+    local file_size
+    file_size=$(stat -c%s "$BINARY_PATH" 2>/dev/null || stat -f%z "$BINARY_PATH" 2>/dev/null || echo "0")
+    if [ "$file_size" -lt 1048576 ]; then
+        log_error "下载的文件异常（大小: ${file_size} 字节），正在从备份恢复..."
+        mv "$backup_file" "$BINARY_PATH"
+        chmod +x "$BINARY_PATH"
         systemctl start ${SERVICE_NAME}.service
         return 1
     fi
@@ -320,12 +334,18 @@ upgrade_komari() {
     chmod +x "$BINARY_PATH"
 
     log_step "重启 Komari 服务..."
+    systemctl daemon-reload
     systemctl start ${SERVICE_NAME}.service
 
     if systemctl is-active --quiet ${SERVICE_NAME}.service; then
-        log_success "Komari 升级成功"
+        log_success "Komari 升级成功（备份保留在: $backup_file）"
     else
-        log_error "服务在升级后未能启动"
+        log_error "服务在升级后未能启动，正在从备份恢复..."
+        systemctl stop ${SERVICE_NAME}.service 2>/dev/null
+        mv "$backup_file" "$BINARY_PATH"
+        chmod +x "$BINARY_PATH"
+        systemctl start ${SERVICE_NAME}.service
+        return 1
     fi
 }
 
