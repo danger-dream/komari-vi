@@ -81,6 +81,25 @@ func applyCustomizations(htmlContent string, cfg models.Config) string {
 	return updated
 }
 
+// isSafePath 验证路径是否在指定的基础目录内，防止路径穿透攻击
+func isSafePath(basePath, targetPath string) bool {
+	absBase, err := filepath.Abs(basePath)
+	if err != nil {
+		return false
+	}
+	cleanTarget := filepath.Clean(targetPath)
+	fullPath := filepath.Join(absBase, cleanTarget)
+	absTarget, err := filepath.Abs(fullPath)
+	if err != nil {
+		return false
+	}
+	rel, err := filepath.Rel(absBase, absTarget)
+	if err != nil {
+		return false
+	}
+	return !strings.HasPrefix(rel, "..") && rel != ".."
+}
+
 func Static(r *gin.RouterGroup, noRoute func(handlers ...gin.HandlerFunc)) {
 	initIndex()
 
@@ -220,14 +239,27 @@ func serveFromEmbedded(c *gin.Context, path string) {
 
 // serveFromTheme 从主题目录服务文件
 func serveFromTheme(c *gin.Context, path string, themeName string) {
+	// 验证主题名称，防止通过主题名进行路径穿透
+	if strings.Contains(themeName, "..") || strings.Contains(themeName, "/") || strings.Contains(themeName, "\\") {
+		c.Status(http.StatusForbidden)
+		return
+	}
+
 	themeDir := filepath.Join("./data/theme", themeName, "dist")
 
 	// 构建完整的文件路径
+	cleanPath := filepath.Clean(strings.TrimPrefix(path, "/"))
 	var filePath string
 	if path == "/" || path == "" {
 		filePath = filepath.Join(themeDir, "index.html")
 	} else {
-		filePath = filepath.Join(themeDir, strings.TrimPrefix(path, "/"))
+		filePath = filepath.Join(themeDir, cleanPath)
+	}
+
+	// 验证路径没有逃逸出主题目录
+	if !isSafePath(themeDir, cleanPath) {
+		c.Status(http.StatusForbidden)
+		return
 	}
 
 	// 检查文件是否存在
