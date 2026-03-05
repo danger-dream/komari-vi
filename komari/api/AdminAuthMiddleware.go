@@ -14,6 +14,7 @@ func AdminAuthMiddleware() gin.HandlerFunc {
 		apiKey := c.GetHeader("Authorization")
 		if isApiKeyValid(apiKey) {
 			c.Set("api_key", apiKey)
+			c.Set("uuid", "api_key_user") // API Key 认证时设置占位 uuid
 			c.Next()
 			return
 		}
